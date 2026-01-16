@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Glossary Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #f093fb, #f5576c, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: rgba(245, 87, 108, 0.2);
+            border-color: #f5576c;
+        }
+
+        .step.completed {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background: #f5576c;
+            color: #fff;
+        }
+
+        .step.completed .step-number {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-title .icon {
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 20px rgba(245, 87, 108, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #555;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .upload-zone.has-file {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .upload-zone p {
+            color: #666;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+        }
+
+        .file-info .file-name {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            color: #1a1a2e;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .preview-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .stat-badge strong {
+            color: #4facfe;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .preview-table th,
+        .preview-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #4facfe;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .preview-table td {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .preview-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .output-section {
+            display: none;
+        }
+
+        .output-section.visible {
+            display: block;
+        }
+
+        .code-output {
+            background: #0d1117;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4facfe;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-content {
+            max-height: 500px;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .code-content pre {
+            margin: 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success-message {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .success-icon {
+            font-size: 2.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            background: #00ff88;
+            color: #1a1a2e;
+            border-radius: 10px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .instructions {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .instructions h4 {
+            color: #4facfe;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #a0a0a0;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 CSV Glossary Generator</h1>
+            <p>Transform your CSV terminology data into a beautiful, searchable glossary website ready for hosting</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step active" id="step1">
+                <span class="step-number">1</span>
+                <span>Configure</span>
+            </div>
+            <div class="step" id="step2">
+                <span class="step-number">2</span>
+                <span>Upload CSV</span>
+            </div>
+            <div class="step" id="step3">
+                <span class="step-number">3</span>
+                <span>Generate</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Configuration -->
+        <div class="card" id="configCard">
+            <h2 class="card-title">
+                <span class="icon">⚙️</span>
+                Configuration
+            </h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Glossary Name *</label>
+                    <input type="text" id="glossaryName" placeholder="e.g., Hong Kong Customs Terminology Glossary">
+                </div>
+                <div class="form-group">
+                    <label>Developer / Organization Name *</label>
+                    <input type="text" id="developerName" placeholder="e.g., Your Name or Company">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Glossary Description (optional)</label>
+                    <input type="text" id="glossaryDescription" placeholder="e.g., A comprehensive bilingual glossary of customs terminology">
+                </div>
+                <div class="form-group">
+                    <label>Primary Color (optional)</label>
+                    <input type="text" id="primaryColor" placeholder="e.g., #00d9ff (default: cyan)">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Secondary Color (optional)</label>
+                    <input type="text" id="secondaryColor" placeholder="e.g., #00ff88 (default: green)">
+                </div>
+                <div class="form-group">
+                    <label>Website / Contact URL (optional)</label>
+                    <input type="text" id="websiteUrl" placeholder="e.g., https://yourwebsite.com">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="proceedToUpload()">
+                    Continue to Upload →
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload -->
+        <div class="card hidden" id="uploadCard">
+            <h2 class="card-title">
+                <span class="icon">📤</span>
+                Upload Your CSV File
+            </h2>
+
+            <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <h3>Drag & Drop your CSV file here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="fileInput" class="file-input" accept=".csv">
+            </div>
+
+            <div class="file-info hidden" id="fileInfo">
+                <span>📄</span>
+                <span class="file-name" id="fileName"></span>
+                <button class="btn btn-secondary" onclick="clearFile()" style="padding: 8px 15px; font-size: 0.85rem;">Remove</button>
+            </div>
+
+            <div class="preview-section hidden" id="previewSection">
+                <div class="preview-header">
+                    <h3>📊 Data Preview</h3>
+                    <div class="preview-stats">
+                        <span class="stat-badge"><strong id="rowCount">0</strong> rows</span>
+                        <span class="stat-badge"><strong id="colCount">0</strong> columns</span>
+                        <span class="stat-badge"><strong id="catCount">0</strong> categories</span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="preview-table" id="previewTable">
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="backToConfig()">
+                    ← Back
+                </button>
+                <button class="btn btn-primary" id="generateBtn" onclick="generateCode()" disabled>
+                    Generate Website Code 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Output -->
+        <div class="card hidden" id="outputCard">
+            <h2 class="card-title">
+                <span class="icon">✨</span>
+                Your Glossary Website is Ready!
+            </h2>
+
+            <div class="success-message">
+                <span class="success-icon">🎉</span>
+                <div>
+                    <strong>Successfully Generated!</strong>
+                    <p style="color: #a0a0a0; margin-top: 5px;">Your complete glossary website code is ready. Download the HTML file and host it anywhere!</p>
+                </div>
+            </div>
+
+            <div class="code-output">
+                <div class="code-header">
+                    <div class="code-title">
+                        <span>📄</span>
+                        <span id="outputFileName">glossary.html</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="btn btn-secondary" onclick="copyCode()" style="padding: 8px 15px;">
+                            📋 Copy Code
+                        </button>
+                        <button class="btn btn-success" onclick="downloadCode()" style="padding: 8px 15px;">
+                            ⬇️ Download HTML
+                        </button>
+                    </div>
+                </div>
+                <div class="code-content">
+                    <pre id="generatedCode"></pre>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h4>📖 Hosting Instructions</h4>
+                <ol>
+                    <li>Download the generated <code>glossary.html</code> file</li>
+                    <li>Upload it to any web hosting service:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li><strong>GitHub Pages:</strong> Push to a repository and enable Pages</li>
+                            <li><strong>Netlify:</strong> Drag and drop the file to deploy</li>
+                            <li><strong>Vercel:</strong> Import and deploy instantly</li>
+                            <li><strong>Any web server:</strong> Upload via FTP/SFTP</li>
+                        </ul>
+                    </li>
+                    <li>Your glossary website is now live! 🎉</li>
+                </ol>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="startOver()">
+                    ← Create Another Glossary
+                </button>
+                <button class="btn btn-success" onclick="downloadCode()">
+                    ⬇️ Download HTML File
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // State
+        let csvData = [];
+        let csvColumns = [];
+        let csvCategories = new Set();
+        let rawCSV = '';
+
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const previewSection = document.getElementById('previewSection');
+        const generateBtn = document.getElementById('generateBtn');
+
+        // Step Navigation
+        function proceedToUpload() {
+            const glossaryName = document.getElementById('glossaryName').value.trim();
+            const developerName = document.getElementById('developerName').value.trim();
+
+            if (!glossaryName || !developerName) {
+                showToast('Please fill in Glossary Name and Developer Name', 'error');
+                return;
+            }
+
+            document.getElementById('configCard').classList.add('hidden');
+            document.getElementById('uploadCard').classList.remove('hidden');
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function backToConfig() {
+            document.getElementById('uploadCard').classList.add('hidden');
+            document.getElementById('configCard').classList.remove('hidden');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.remove('completed');
+            document.getElementById('step1').classList.add('active');
+        }
+
+        function startOver() {
+            document.getElementById('outputCard').classList.add('hidden');
+            document.getElementById('configCard').classList.remove('hidden');
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step2').classList.remove('completed');
+            document.getElementById('step1').classList.remove('completed');
+            document.getElementById('step1').classList.add('active');
+            clearFile();
+        }
+
+        // File Upload Handling
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                handleFile(file);
+            } else {
+                showToast('Please upload a CSV file', 'error');
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                rawCSV = e.target.result;
+                parseCSV(rawCSV);
+                
+                fileName.textContent = file.name;
+                fileInfo.classList.remove('hidden');
+                dropZone.classList.add('has-file');
+                previewSection.classList.remove('hidden');
+                generateBtn.disabled = false;
+                
+                showPreview();
+                showToast('CSV file loaded successfully!');
+            };
+            reader.readAsText(file);
+        }
+
+        function clearFile() {
+            rawCSV = '';
+            csvData = [];
+            csvColumns = [];
+            csvCategories.clear();
+            
+            fileInput.value = '';
+            fileInfo.classList.add('hidden');
+            dropZone.classList.remove('has-file');
+            previewSection.classList.add('hidden');
+            generateBtn.disabled = true;
+        }
+
+        // CSV Parsing
+        function parseCSV(csvString) {
+            const lines = csvString.trim().split('\n');
+            csvColumns = parseCSVLine(lines[0]);
+            
+            csvData = [];
+            csvCategories.clear();
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === csvColumns.length) {
+                    const row = {};
+                    csvColumns.forEach((col, index) => {
+                        row[col] = values[index];
+                    });
+                    csvData.push(row);
+                    
+                    // Find category column
+                    const catCol = csvColumns.find(c => c.toLowerCase().includes('category'));
+                    if (catCol && row[catCol]) {
+                        csvCategories.add(row[catCol]);
+                    }
+                }
+            }
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function showPreview() {
+            document.getElementById('rowCount').textContent = csvData.length;
+            document.getElementById('colCount').textContent = csvColumns.length;
+            document.getElementById('catCount').textContent = csvCategories.size;
+
+            // Header
+            const thead = document.getElementById('previewHead');
+            thead.innerHTML = '<tr>' + csvColumns.map(col => `<th>${col}</th>`).join('') + '</tr>';
+
+            // Body (first 10 rows)
+            const tbody = document.getElementById('previewBody');
+            const previewData = csvData.slice(0, 10);
+            tbody.innerHTML = previewData.map(row => 
+                '<tr>' + csvColumns.map(col => `<td>${truncate(row[col], 50)}</td>`).join('') + '</tr>'
+            ).join('');
+        }
+
+        function truncate(str, len) {
+            if (!str) return '';
+            return str.length > len ? str.substring(0, len) + '...' : str;
+        }
+
+        // Code Generation
+        function generateCode() {
+            const config = {
+                glossaryName: document.getElementById('glossaryName').value.trim(),
+                developerName: document.getElementById('developerName').value.trim(),
+                description: document.getElementById('glossaryDescription').value.trim() || 'A searchable terminology glossary',
+                primaryColor: document.getElementById('primaryColor').value.trim() || '#00d9ff',
+                secondaryColor: document.getElementById('secondaryColor').value.trim() || '#00ff88',
+                websiteUrl: document.getElementById('websiteUrl').value.trim() || '#'
+            };
+
+            const generatedHTML = generateGlossaryHTML(config, rawCSV);
+            
+            document.getElementById('generatedCode').textContent = generatedHTML;
+            document.getElementById('outputFileName').textContent = 
+                config.glossaryName.toLowerCase().replace(/\s+/g, '-') + '.html';
+
+            document.getElementById('uploadCard').classList.add('hidden');
+            document.getElementById('outputCard').classList.remove('hidden');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+
+            showToast('Website code generated successfully!');
+        }
+
+        function generateGlossaryHTML(config, csvContent) {
+            const escapedCSV = csvContent
+                .replace(/\\/g, '\\\\')
+                .replace(/`/g, '\\`')
+                .replace(/\$/g, '\\$');
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${config.glossaryName}</title>
+    <meta name="description" content="${config.description}">
+    <meta name="author" content="${config.developerName}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, ${config.primaryColor}, ${config.secondaryColor});
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .header .developer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .header .developer a {
+            color: ${config.primaryColor};
+            text-decoration: none;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 60px 20px 25px;
+            font-size: 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: ${config.primaryColor};
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: #666;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: ${config.primaryColor};
+            font-size: 1.5rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0a0a0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: ${config.primaryColor};
+            color: ${config.primaryColor};
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(90deg, ${config.primaryColor}, ${config.secondaryColor});
+            color: #1a1a2e;
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: ${config.primaryColor};
+        }
+
+        .stat-card .label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .results-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .term-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: ${config.primaryColor};
+        }
+
+        .term-translation {
+            font-size: 1.1rem;
+            color: ${config.secondaryColor};
+            font-weight: 500;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+        }
+
+        .definitions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .definitions { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8rem; }
+        }
+
+        .definition-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid;
+        }
+
+        .definition-box.en { border-color: ${config.primaryColor}; }
+        .definition-box.zh { border-color: ${config.secondaryColor}; }
+
+        .definition-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .definition-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d0d0d0;
+        }
+
+        .highlight {
+            background: rgba(0, 217, 255, 0.3);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-results-icon { font-size: 4rem; margin-bottom: 20px; }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: ${config.primaryColor};
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 ${config.glossaryName}</h1>
+            <p>${config.description}</p>
+            <div class="developer">
+                Created by <a href="${config.websiteUrl}" target="_blank">${config.developerName}</a>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search terms, translations, definitions...">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="filters" id="categoryFilters"></div>
+
+        <div class="stats" id="statsContainer"></div>
+
+        <div class="results-container" id="resultsContainer"></div>
+
+        <div class="footer">
+            <p>© ${new Date().getFullYear()} ${config.developerName}. Powered by CSV Glossary Generator.</p>
+        </div>
+    </div>
+
+    <script>
+        // Embedded CSV Data
+        const csvData = \`${escapedCSV}\`;
+
+        // Glossary Engine
+        class GlossaryEngine {
+            constructor() {
+                this.data = [];
+                this.columns = [];
+                this.categories = new Set();
+                this.filteredData = [];
+                this.activeCategory = 'all';
+                this.searchQuery = '';
+            }
+
+            parseCSV(csvString) {
+                const lines = csvString.trim().split('\\n');
+                const headers = this.parseCSVLine(lines[0]);
+                this.columns = headers;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = this.parseCSVLine(lines[i]);
+                    if (values.length === headers.length) {
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header] = values[index];
+                        });
+                        this.data.push(row);
+                        
+                        const catCol = headers.find(c => c.toLowerCase().includes('category'));
+                        if (catCol && row[catCol]) {
+                            this.categories.add(row[catCol]);
+                        }
+                    }
+                }
+                this.filteredData = [...this.data];
+            }
+
+            parseCSVLine(line) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        if (inQuotes && line[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            }
+
+            search(query) {
+                this.searchQuery = query.toLowerCase().trim();
+                
+                if (!this.searchQuery) {
+                    this.filteredData = this.activeCategory === 'all' 
+                        ? [...this.data]
+                        : this.data.filter(row => {
+                            const catCol = this.columns.find(c => c.toLowerCase().includes('category'));
+                            return row[catCol] === this.activeCategory;
+                        });
+                    return this.filteredData;
+                }
+
+                this.filteredData = this.data.filter(row => {
+                    const catCol = this.columns.find(c => c.toLowerCase().includes('category'));
+                    if (this.activeCategory !== 'all' && row[catCol] !== this.activeCategory) {
+                        return false;
+                    }
+                    return this.columns.some(col => {
+                        const value = row[col];
+                        return typeof value === 'string' && value.toLowerCase().includes(this.searchQuery);
+                    });
+                });
+
+                return this.filteredData;
+            }
+
+            filterByCategory(category) {
+                this.activeCategory = category;
+                return this.search(this.searchQuery);
+            }
+
+            highlightText(text, query) {
+                if (!query || !text) return text;
+                const regex = new RegExp('(' + query.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&') + ')', 'gi');
+                return text.replace(regex, '<span class="highlight">$1</span>');
+            }
+
+            getStats() {
+                return {
+                    total: this.data.length,
+                    filtered: this.filteredData.length,
+                    categories: Array.from(this.categories)
+                };
+            }
+        }
+
+        // Initialize
+        const engine = new GlossaryEngine();
+        engine.parseCSV(csvData);
+
+        // Render UI
+        function renderFilters() {
+            const container = document.getElementById('categoryFilters');
+            let html = '<button class="filter-btn active" data-category="all">All</button>';
+            engine.categories.forEach(cat => {
+                html += '<button class="filter-btn" data-category="' + cat + '">' + cat + '</button>';
+            });
+            container.innerHTML = html;
+
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    engine.filterByCategory(e.target.dataset.category);
+                    renderResults();
+                    renderStats();
+                }
+            });
+        }
+
+        function renderStats() {
+            const stats = engine.getStats();
+            document.getElementById('statsContainer').innerHTML = 
+                '<div class="stat-card"><div class="number">' + stats.filtered + '</div><div class="label">Results</div></div>' +
+                '<div class="stat-card"><div class="number">' + stats.total + '</div><div class="label">Total Terms</div></div>' +
+                '<div class="stat-card"><div class="number">' + stats.categories.length + '</div><div class="label">Categories</div></div>';
+        }
+
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            const data = engine.filteredData;
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div><h3>No results found</h3><p>Try adjusting your search or filters</p></div>';
+                return;
+            }
+
+            const cols = engine.columns;
+            const primaryCol = cols[0];
+            const translationCol = cols[1];
+            const catCol = cols.find(c => c.toLowerCase().includes('category'));
+            const defCols = cols.filter(c => c.toLowerCase().includes('definition'));
+
+            container.innerHTML = data.map((row, index) => {
+                const definitions = defCols.map(col => {
+                    const isEn = col.toLowerCase().includes('en');
+                    return '<div class="definition-box ' + (isEn ? 'en' : 'zh') + '">' +
+                        '<div class="definition-label">' + col + '</div>' +
+                        '<div class="definition-text">' + engine.highlightText(row[col] || '', engine.searchQuery) + '</div>' +
+                    '</div>';
+                }).join('');
+
+                return '<div class="result-card" style="animation-delay: ' + (index * 0.05) + 's">' +
+                    '<div class="term-header">' +
+                        '<div>' +
+                            '<div class="term-title">' + engine.highlightText(row[primaryCol] || '', engine.searchQuery) + '</div>' +
+                            '<div class="term-translation">' + engine.highlightText(row[translationCol] || '', engine.searchQuery) + '</div>' +
+                        '</div>' +
+                        '<span class="category-badge">' + (row[catCol] || '') + '</span>' +
+                    '</div>' +
+                    '<div class="definitions">' + definitions + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            engine.search(e.target.value);
+            renderResults();
+            renderStats();
+        });
+
+        // Initialize
+        renderFilters();
+        renderStats();
+        renderResults();
+    <\/script>
+</body>
+</html>`;
+        }
+
+        function copyCode() {
+            const code = document.getElementById('generatedCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Code copied to clipboard!');
+            });
+        }
+
+        function downloadCode() {
+            const code = document.getElementById('generatedCode').textContent;
+            const fileName = document.getElementById('outputFileName').textContent;
+            
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('File downloaded successfully!');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#f5576c' : '#00ff88';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
