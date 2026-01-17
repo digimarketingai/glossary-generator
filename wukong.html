@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑神话：悟空 - 角色图鉴 | Black Myth: Wukong - Character Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .header {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #e94560;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #ffd700, #ff6b35, #e94560);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #ffd700;
+            margin: 30px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #e94560;
+        }
+        
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .character-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,215,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233,69,96,0.3);
+        }
+        
+        .character-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            border: 3px solid #ffd700;
+        }
+        
+        .character-name {
+            font-size: 1.5em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .character-name-en {
+            color: #888;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .character-info {
+            margin-top: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .info-label {
+            color: #e94560;
+            min-width: 80px;
+            font-weight: bold;
+        }
+        
+        .info-label-en {
+            color: #666;
+            font-size: 0.8em;
+            display: block;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .info-value-zh {
+            color: #fff;
+        }
+        
+        .info-value-en {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+        
+        .terms-section {
+            margin-top: 50px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .terms-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .terms-table th {
+            background: rgba(233,69,96,0.3);
+            padding: 15px;
+            text-align: left;
+            color: #ffd700;
+        }
+        
+        .terms-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .terms-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .term-zh {
+            font-size: 1.1em;
+            color: #fff;
+        }
+        
+        .term-en {
+            color: #4ecdc4;
+        }
+        
+        .term-pinyin {
+            color: #888;
+            font-style: italic;
+        }
+        
+        .term-category {
+            background: rgba(233,69,96,0.2);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #e94560;
+        }
+        
+        .term-notes {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+        
+        .code-hint {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #333;
+        }
+        
+        .code-hint h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+        }
+        
+        .code-hint code {
+            color: #9cdcfe;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .element-tag {
+            color: #569cd6;
+        }
+        
+        .element-class {
+            color: #ce9178;
+        }
+        
+        .element-attr {
+            color: #9cdcfe;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .characters-grid {
+                grid-template-columns: 1fr;
+            }
+            .terms-table {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>黑神话：悟空</h1>
+        <p class="subtitle">Black Myth: Wukong - 角色与术语图鉴 Character & Terminology Database</p>
+    </header>
+    
+    <div class="container">
+        <!-- 主要角色 Main Characters -->
+        <h2 class="section-title">主要角色 | Main Characters</h2>
+        
+        <div class="characters-grid" id="main-characters">
+            <!-- 孙悟空 -->
+            <div class="character-card" data-id="001">
+                <div class="character-avatar" style="background: linear-gradient(135deg, #ffd700, #ff6b35);">🐵</div>
+                <h3 class="character-name" data-zh="孙悟空">孙悟空</h3>
+                <p class="character-name-en" data-en="Sun Wukong">Sun Wukong / The Monkey King</p>
+                
+                <div class="character-info">
+                    <div class="info-row">
+                        <span class="info-label">称号<span class="info-label-en">Title</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="齐天大圣">齐天大圣</span>
+                            <p class="info-value-en" data-en="The Great Sage Equal to Heaven">The Great Sage Equal to Heaven</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">武器<span class="info-label-en">Weapon</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="如意金箍棒">如意金箍棒</span>
+                            <p class="info-value-en" data-en="Ruyi Jingu Bang">Ruyi Jingu Bang (Compliant Golden-Hooped Rod)</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">技能<span class="info-label-en">Skills</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="七十二变">七十二变</span>
+                            <p class="info-value-en" data-en="72 Transformations">72 Transformations</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">来源<span class="info-label-en">Origin</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="花果山水帘洞">花果山水帘洞</span>
+                            <p class="info-value-en" data-en="Water Curtain Cave, Mountain of Flowers and Fruit">Water Curtain Cave, Mountain of Flowers and Fruit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 二郎神 -->
+            <div class="character-card" data-id="002">
+                <div class="character-avatar" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">👁️</div>
+                <h3 class="character-name" data-zh="二郎神">二郎神</h3>
+                <p class="character-name-en" data-en="Erlang Shen">Erlang Shen / Erlang God</p>
+                
+                <div class="character-info">
+                    <div class="info-row">
+                        <span class="info-label">称号<span class="info-label-en">Title</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="显圣真君">显圣真君</span>
+                            <p class="info-value-en" data-en="Lord of Manifest Sanctity">Lord of Manifest Sanctity</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">武器<span class="info-label-en">Weapon</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="三尖两刃刀">三尖两刃刀</span>
+                            <p class="info-value-en" data-en="Three-Pointed Double-Edged Blade">Three-Pointed Double-Edged Blade</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">特征<span class="info-label-en">Feature</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="天眼（第三只眼）">天眼（第三只眼）</span>
+                            <p class="info-value-en" data-en="Heavenly Eye (Third Eye)">Heavenly Eye (Third Eye)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 牛魔王 -->
+            <div class="character-card" data-id="003">
+                <div class="character-avatar" style="background: linear-gradient(135deg, #e94560, #8b0000);">🐂</div>
+                <h3 class="character-name" data-zh="牛魔王">牛魔王</h3>
+                <p class="character-name-en" data-en="Bull Demon King">Bull Demon King / Demon King of Confusion</p>
+                
+                <div class="character-info">
+                    <div class="info-row">
+                        <span class="info-label">称号<span class="info-label-en">Title</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="平天大圣">平天大圣</span>
+                            <p class="info-value-en" data-en="Great Sage Who Pacifies Heaven">Great Sage Who Pacifies Heaven</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">配偶<span class="info-label-en">Spouse</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="铁扇公主">铁扇公主</span>
+                            <p class="info-value-en" data-en="Princess Iron Fan">Princess Iron Fan</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">领地<span class="info-label-en">Domain</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="积雷山摩云洞">积雷山摩云洞</span>
+                            <p class="info-value-en" data-en="Cloud-Brushing Cave, Mount Accumulated Thunder">Cloud-Brushing Cave, Mount Accumulated Thunder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 黄眉大王 -->
+            <div class="character-card" data-id="004">
+                <div class="character-avatar" style="background: linear-gradient(135deg, #f39c12, #d68910);">👹</div>
+                <h3 class="character-name" data-zh="黄眉大王">黄眉大王</h3>
+                <p class="character-name-en" data-en="Yellow Brow">Yellow Brow / Yellow-Browed King</p>
+                
+                <div class="character-info">
+                    <div class="info-row">
+                        <span class="info-label">法宝<span class="info-label-en">Artifact</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="人种袋">人种袋</span>
+                            <p class="info-value-en" data-en="Human Seed Bag">Human Seed Bag</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">武器<span class="info-label-en">Weapon</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="敲磬槌">敲磬槌</span>
+                            <p class="info-value-en" data-en="Chime Mallet">Chime Mallet</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">来历<span class="info-label-en">Origin</span></span>
+                        <div class="info-value">
+                            <span class="info-value-zh" data-zh="弥勒佛座下童子">弥勒佛座下童子</span>
+                            <p class="info-value-en" data-en="Attendant of Maitreya Buddha">Attendant of Maitreya Buddha</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 术语库 Terminology Database -->
+        <div class="terms-section" id="terminology-database">
+            <h2 class="section-title">游戏术语库 | Game Terminology Database</h2>
+            
+            <table class="terms-table" id="terms-table">
+                <thead>
+                    <tr>
+                        <th>中文术语<br><small>Chinese Term</small></th>
+                        <th>拼音<br><small>Pinyin</small></th>
+                        <th>英文翻译<br><small>English</small></th>
+                        <th>类别<br><small>Category</small></th>
+                        <th>备注<br><small>Notes</small></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="term-row" data-category="skill">
+                        <td class="term-zh">筋斗云</td>
+                        <td class="term-pinyin">jīn dǒu yún</td>
+                        <td class="term-en">Somersault Cloud</td>
+                        <td><span class="term-category">技能/Skill</span></td>
+                        <td class="term-notes">一个筋斗可翻十万八千里</td>
+                    </tr>
+                    <tr class="term-row" data-category="skill">
+                        <td class="term-zh">火眼金睛</td>
+                        <td class="term-pinyin">huǒ yǎn jīn jīng</td>
+                        <td class="term-en">Fiery Eyes and Golden Gaze</td>
+                        <td><span class="term-category">技能/Skill</span></td>
+                        <td class="term-notes">可识破妖魔鬼怪的伪装</td>
+                    </tr>
+                    <tr class="term-row" data-category="item">
+                        <td class="term-zh">紧箍咒</td>
+                        <td class="term-pinyin">jǐn gū zhòu</td>
+                        <td class="term-en">Band-Tightening Spell</td>
+                        <td><span class="term-category">法术/Spell</span></td>
+                        <td class="term-notes">使金箍收紧的咒语</td>
+                    </tr>
+                    <tr class="term-row" data-category="item">
+                        <td class="term-zh">芭蕉扇</td>
+                        <td class="term-pinyin">bā jiāo shàn</td>
+                        <td class="term-en">Banana Palm Fan</td>
+                        <td><span class="term-category">法宝/Artifact</span></td>
+                        <td class="term-notes">铁扇公主的宝扇，可灭火焰山之火</td>
+                    </tr>
+                    <tr class="term-row" data-category="location">
+                        <td class="term-zh">天庭</td>
+                        <td class="term-pinyin">tiān tíng</td>
+                        <td class="term-en">Heavenly Court</td>
+                        <td><span class="term-category">地点/Location</span></td>
+                        <td class="term-notes">天界神仙居所</td>
+                    </tr>
+                    <tr class="term-row" data-category="location">
+                        <td class="term-zh">蟠桃园</td>
+                        <td class="term-pinyin">pán táo yuán</td>
+                        <td class="term-en">Peach Garden of Immortality</td>
+                        <td><span class="term-category">地点/Location</span></td>
+                        <td class="term-notes">种植蟠桃的仙园</td>
+                    </tr>
+                    <tr class="term-row" data-category="item">
+                        <td class="term-zh">金丹</td>
+                        <td class="term-pinyin">jīn dān</td>
+                        <td class="term-en">Golden Elixir</td>
+                        <td><span class="term-category">道具/Item</span></td>
+                        <td class="term-notes">太上老君炼制的仙丹</td>
+                    </tr>
+                    <tr class="term-row" data-category="character">
+                        <td class="term-zh">妖王</td>
+                        <td class="term-pinyin">yāo wáng</td>
+                        <td class="term-en">Demon King</td>
+                        <td><span class="term-category">称号/Title</span></td>
+                        <td class="term-notes">妖怪中的首领</td>
+                    </tr>
+                    <tr class="term-row" data-category="skill">
+                        <td class="term-zh">定身术</td>
+                        <td class="term-pinyin">dìng shēn shù</td>
+                        <td class="term-en">Immobilization Spell</td>
+                        <td><span class="term-category">技能/Skill</span></td>
+                        <td class="term-notes">使目标无法移动的法术</td>
+                    </tr>
+                    <tr class="term-row" data-category="item">
+                        <td class="term-zh">避火罩</td>
+                        <td class="term-pinyin">bì huǒ zhào</td>
+                        <td class="term-en">Fire-Repelling Cover</td>
+                        <td><span class="term-category">装备/Equipment</span></td>
+                        <td class="term-notes">防御火焰伤害的护具</td>
+                    </tr>
+                    <tr class="term-row" data-category="system">
+                        <td class="term-zh">精魄</td>
+                        <td class="term-pinyin">jīng pò</td>
+                        <td class="term-en">Spirit</td>
+                        <td><span class="term-category">系统/System</span></td>
+                        <td class="term-notes">游戏中的灵魂/经验值概念</td>
+                    </tr>
+                    <tr class="term-row" data-category="system">
+                        <td class="term-zh">棍势</td>
+                        <td class="term-pinyin">gùn shì</td>
+                        <td class="term-en">Stance</td>
+                        <td><span class="term-category">系统/System</span></td>
+                        <td class="term-notes">战斗中的棍法姿态</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+    <footer>
+        <p>📚 本页面仅供教学使用 | This page is for educational purposes only</p>
+        <p style="margin-top: 10px;">游戏本地化术语库爬虫教程 | Game Localization Termbase Crawler Tutorial</p>
+    </footer>
+</body>
+</html>
